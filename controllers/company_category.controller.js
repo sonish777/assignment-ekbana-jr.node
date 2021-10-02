@@ -2,6 +2,7 @@ const CompanyCategroy = require("../models/CompanyCategroy");
 const AppError = require("../utils/AppError");
 const catchAsyncError = require("../utils/catchAsyncError");
 const paginate = require("../utils/paginate");
+const { filterRequestBody } = require("../utils/helpers");
 
 module.exports.getAllCategories = catchAsyncError(async (req, res, next) => {
   const page = req.query.page * 1 || 1;
@@ -13,9 +14,8 @@ module.exports.getAllCategories = catchAsyncError(async (req, res, next) => {
 });
 
 module.exports.createCategory = catchAsyncError(async (req, res, next) => {
-  const { title } = req.body;
-  const newCategory = new CompanyCategroy({ title });
-  await newCategory.save();
+  const filteredBody = filterRequestBody(req.body, ["title"]);
+  const newCategory = await CompanyCategroy.create(filteredBody);
   res.status(201).json({
     status: "success",
     data: newCategory,
@@ -36,12 +36,14 @@ module.exports.getCategory = catchAsyncError(async (req, res, next) => {
 
 module.exports.updateCategory = catchAsyncError(async (req, res, next) => {
   const { id } = req.params;
-  const updateObject = {
-    title: req.body.title,
-    updated_at: new Date(Date.now()),
-  };
-  const category = await CompanyCategroy.findByIdAndUpdate(id, updateObject, {
+  const filteredBody = filterRequestBody(req.body, ["title"]);
+  console.log(filteredBody.length);
+  if (JSON.stringify(filteredBody) == "{}") {
+    return next(new AppError(400, "No property provided for update"));
+  }
+  const category = await CompanyCategroy.findByIdAndUpdate(id, filteredBody, {
     runValidators: true,
+    new: true,
   });
   if (!category) {
     return next(new AppError(404, "The category for given ID was not found"));

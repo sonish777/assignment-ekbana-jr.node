@@ -20,7 +20,7 @@ app.all("*", (req, res, next) => {
 
 // Express default error handler
 app.use((err, req, res, next) => {
-  console.log(err);
+  console.log("Something Went Wrong!", err);
   res.status(err.errorCode).json({
     status: "fail",
     message: err.errorMessage,

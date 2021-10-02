@@ -17,6 +17,11 @@ const companyCategorySchema = new mongoose.Schema({
   },
 });
 
+companyCategorySchema.pre("findOneAndUpdate", function (next) {
+  this._update.updated_at = new Date(Date.now());
+  next();
+});
+
 const CompanyCategory = mongoose.model(
   "CompanyCategory",
   companyCategorySchema

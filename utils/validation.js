@@ -6,7 +6,10 @@ module.exports.createValidators = (validatorsObj) => {
   Object.keys(validatorsObj).forEach((key) => {
     switch (validatorsObj[key]) {
       case "NOT_NULL":
-        validators.push(body(key).trim().not().isEmpty());
+        validators.push(body(key).optional().trim().not().isEmpty());
+        break;
+      case "BOOLEAN":
+        validators.push(body(key).optional().isBoolean());
         break;
     }
   });
