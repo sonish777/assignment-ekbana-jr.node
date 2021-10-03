@@ -32,6 +32,11 @@ const companySchema = new mongoose.Schema({
   },
 });
 
+companySchema.pre(/^find/, function (next) {
+  this.populate("category_id");
+  next();
+});
+
 companySchema.pre("findOneAndUpdate", function (next) {
   this._update.updated_at = new Date(Date.now());
   next();

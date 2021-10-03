@@ -37,7 +37,6 @@ module.exports.getCategory = catchAsyncError(async (req, res, next) => {
 module.exports.updateCategory = catchAsyncError(async (req, res, next) => {
   const { id } = req.params;
   const filteredBody = filterRequestBody(req.body, ["title"]);
-  console.log(filteredBody.length);
   if (JSON.stringify(filteredBody) == "{}") {
     return next(new AppError(400, "No property provided for update"));
   }
@@ -57,6 +56,8 @@ module.exports.updateCategory = catchAsyncError(async (req, res, next) => {
 module.exports.deleteCategory = catchAsyncError(async (req, res, next) => {
   const { id } = req.params;
   const deletedCategory = await CompanyCategroy.findByIdAndDelete(id);
+  if (!deletedCategory)
+    return next(new AppError(404, "The category for given ID was not found"));
   res.status(204).json({
     status: "success",
     data: deletedCategory,

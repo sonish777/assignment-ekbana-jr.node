@@ -1,12 +1,19 @@
 const router = require("express").Router();
+const { body } = require("express-validator");
 const companyController = require("../controllers/company.controller");
-const { createValidators, validate } = require("../utils/validation");
+const validate = require("../middlewares/validate");
+const upload = require("../middlewares/imageUpload");
+const verifyApiKey = require("../middlewares/verifyApiKey");
+
+router.use(verifyApiKey);
 
 router
   .route("/")
   .get(companyController.getAllCompanies)
   .post(
-    createValidators({ title: "NOT_NULL", status: "BOOLEAN" }),
+    upload("image"),
+    body("title").trim().notEmpty(),
+    body("status").optional().isBoolean(),
     validate,
     companyController.createCompany
   );
@@ -15,7 +22,9 @@ router
   .route("/:id")
   .get(companyController.getCompany)
   .put(
-    createValidators({ title: "NOT_NULL", status: "BOOLEAN" }),
+    upload("image"),
+    body("title").optional().trim().notEmpty(),
+    body("status").optional().isBoolean(),
     validate,
     companyController.updateCompany
   )
